@@ -5,6 +5,7 @@ import random
 
 FPS = 60
 WIDTH, HEIGHT = 680, 480
+BORDER_DELTA = min(WIDTH, HEIGHT) / 4
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -27,11 +28,11 @@ class Player:
         self.x = width / 2
         self.y = height / 2
         self.angle = 0
-        self.fov = math.pi / 2
+        self.fov = math.pi / 3
         self.rays = 120
         self.delta_angle = self.fov / self.rays
-        self.max_depth = 500
-        self.speed = 2
+        self.max_depth = 600
+        self.speed = 1
 
     def cast_ray(self, angle):
         x, y = self.x, self.y
@@ -50,10 +51,10 @@ class Player:
 
     def update(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_q]:
-            self.angle -= 0.02
-        if keys[pygame.K_e]:
-            self.angle += 0.02
+        if keys[pygame.K_LEFT]:
+            self.angle -= 0.05
+        if keys[pygame.K_RIGHT]:
+            self.angle += 0.05
         if keys[pygame.K_w]:
             self.x += self.speed * math.cos(self.angle)
             self.y += self.speed * math.sin(self.angle)
@@ -74,12 +75,13 @@ class Player:
         mouse_x = max(0, min(mouse_x, WIDTH))
         mouse_y = max(0, min(mouse_y, HEIGHT))
 
-        if mouse_x < 0 or mouse_x > WIDTH or mouse_y < 0 or mouse_y > HEIGHT:
+        if mouse_x < BORDER_DELTA or mouse_x > WIDTH - BORDER_DELTA or mouse_y < BORDER_DELTA or mouse_y > HEIGHT - BORDER_DELTA:
             pygame.mouse.set_pos(WIDTH / 2, HEIGHT / 2)
             return
 
         center_x = self.x + WIDTH / 2
         center_y = self.y + HEIGHT / 2
+
         dx = mouse_x - center_x
         dy = mouse_y - center_y
 
@@ -108,7 +110,7 @@ class Player:
 
             wall_height = min(int(HEIGHT / distance) * 2, HEIGHT)
             wall_color = (
-                255,
+                0,
                 min(255, int(255 / (1 + distance * distance * 0.00005))),
                 0,
             )
@@ -138,7 +140,7 @@ while True:
             pygame.quit()
             sys.exit()
     player.update()
-    player.update_mouse_rotation()
+    # player.update_mouse_rotation()
     player.draw_walls(screen)
     pygame.display.flip()
     clock.tick(FPS)
